@@ -5,11 +5,13 @@ import Loading from "./components/loading.vue";
 import settings from "@/settings";
 import type {FormInstance, FormRules} from "element-plus";
 import {useRouter} from "vue-router";
+import {captcha} from "@/apis/careful-ui/third/captcha";
+import {login} from "@/apis/careful-ui/auth";
 import {HOME_URL, LOGIN_URL} from "@/config";
 import {initDynamicRouter} from "@/router/modules/dynamicRouter";
 import {useUserStore, useKeepAliveStore, useTabsStore, useGlobalStore} from "@/store";
 import {getAssets, getLanguage} from "@/utils";
-import {skyMsgWarning, skyMsgError} from "@/utils/sky";
+import {skyMsgSuccess, skyMsgWarning, skyMsgError} from "@/utils/sky";
 import {User, Lock, Open} from "@element-plus/icons-vue";
 
 const router = useRouter();
@@ -31,58 +33,111 @@ loginTitle.value = computed(() => {
 });
 
 interface ILoginUser {
-  loginName: string;
+  username: string;
   password: string | number;
-  securityCode: string | number;
-  codeKey: string | number;
-  captchaPicture: any;
+  id: string | number;
+  code: string | number;
+  bizType: string | number;
+  img: any;
 }
 
 const loginForm = reactive<ILoginUser>({
-  loginName: "careful",
+  username: "careful",
   password: "123456",
-  securityCode: "",
-  codeKey: "",
-  captchaPicture: ""
+  id: "",
+  code: "",
+  bizType: "BizCaptchaLogin",
+  img: ""
 });
 let loginRules: any = reactive<FormRules<ILoginUser>>({});
 loginRules = computed(() => {
   if (globalStore.language === "en") {
     return reactive<FormRules<ILoginUser>>({
-      loginName: [{required: true, message: "The user name cannot be empty", trigger: "blur"}],
+      username: [{required: true, message: "The user name cannot be empty", trigger: "blur"}],
       password: [{required: true, message: "The password cannot be empty", trigger: "blur"}],
-      securityCode: [{required: true, message: "The verification code cannot be empty", trigger: "blur"}]
+      code: [{required: true, message: "The verification code cannot be empty", trigger: "blur"}]
     });
   } else {
     return reactive<FormRules<ILoginUser>>({
-      loginName: [{required: true, message: "用户名不能为空", trigger: "blur"}],
+      username: [{required: true, message: "用户名不能为空", trigger: "blur"}],
       password: [{required: true, message: "密码不能为空", trigger: "blur"}],
-      securityCode: [{required: true, message: "验证码不能为空", trigger: "blur"}]
+      code: [{required: true, message: "验证码不能为空", trigger: "blur"}]
     });
   }
 });
 
 /** 获取验证码 */
 const handleCaptcha = async () => {
+  try {
+    const res: any = await captcha({
+      bizType: "BizCaptchaLogin",
+      type: 1,
+    });
+    loginForm.id = res.data.id;
+    loginForm.img = res.data.img;
+  } catch (error) {
+    skyMsgError(`验证码获取失败🌻【${error}】】`);
+  }
 };
+
+const cfTimer = ref();
+// 验证码定时器
+const getCaptchaTimer = () => {
+  cfTimer.value = setInterval(() => {
+    // 执行刷新数据的方法
+    handleCaptcha();
+  }, 345 * 1000);
+};
+
 
 /** 登录 */
 const handlePassLogin = () => {
-
+  if (!loginFormRef.value) return;
+  loginFormRef.value.validate(async (valid: boolean) => {
+    if (valid) {
+      loading.value = true;
+      try {
+        const res: any = await login(loginForm);
+        userStore.setToken(res.data.token);
+        // 添加动态路由 AND 用户按钮 AND 角色信息 AND 用户个人信息
+        // await initDynamicRouter();
+        // 清空 tabs数据、keepAlive缓存数据
+        await tabsStore.setTab([]);
+        await keepAliveStore.setKeepAliveName([]);
+        // 跳转到首页
+        loading.value = false;
+        skyMsgSuccess(res.msg);
+        // await router.push(HOME_URL);
+      } catch (error) {
+        skyMsgError(`登录失败🌻【${error}】`);
+      } finally {
+        // 等待1秒关闭loading
+        let loadingTime = 1;
+        setInterval(() => {
+          loadingTime--;
+          if (loadingTime === 0) {
+            loading.value = false;
+          }
+        }, 1000);
+      }
+    } else {
+      skyMsgError("校验失败，信息填写有误🌻");
+    }
+  });
 };
 
 onMounted(() => {
   // 获取验证码
   handleCaptcha();
   // 局部刷新定时器
-  // getCaptchaTimer();
+  getCaptchaTimer();
 });
 
-// onUnmounted(() => {
-//   // 清除局部刷新定时器
-//   clearInterval(koiTimer.value);
-//   koiTimer.value = null;
-// });
+onUnmounted(() => {
+  // 清除局部刷新定时器
+  clearInterval(cfTimer.value);
+  cfTimer.value = null;
+});
 </script>
 
 <template>
@@ -98,7 +153,7 @@ onMounted(() => {
         <div class="absolute text-center select-none">
           <el-image class="w-400px h-360px mb-50px animate-float <md:hidden <lg:w-360px h-320px" :src="bg"/>
           <div class="font-bold text-3xl chroma-text mb-6px text-center <lg:text-2xl <md:hidden">
-            {{ $t("login.welcome") }} {{ loginTitle || "KOI-ADMIN 管理平台" }}
+            {{ $t("login.welcome") }} {{ loginTitle || "CAREFUL-ADMIN 管理平台" }}
           </div>
           <div class="chroma-text text-lg text-center <md:hidden">{{ $t("login.description") }}</div>
         </div>
@@ -114,7 +169,7 @@ onMounted(() => {
               class="dark:bg-#161616 bg-gray-100 flex flex-items-center flex-justify-center flex-col">
         <div class="flex flex-items-center">
           <el-image class="rounded-full w-36px h-36px" :src="logo"/>
-          <div class="ml-6px font-bold text-xl">{{ loginTitle || "KOI-ADMIN 管理平台" }}</div>
+          <div class="ml-6px font-bold text-xl">{{ loginTitle || "CAREFUL-ADMIN 管理平台" }}</div>
         </div>
         <div class="flex flex-items-center space-x-3 text-gray-400 mt-16px mb-16px">
           <span class="h-1px w-16 bg-gray-300 inline-block"></span>
@@ -123,8 +178,8 @@ onMounted(() => {
         </div>
         <!-- 输入框盒子 -->
         <el-form ref="loginFormRef" :model="loginForm" :rules="loginRules" class="w-260px">
-          <el-form-item prop="loginName">
-            <el-input type="text" :placeholder="$t('login.loginName')" :suffix-icon="User" v-model="loginForm.loginName"/>
+          <el-form-item prop="username">
+            <el-input type="text" :placeholder="$t('login.loginName')" :suffix-icon="User" v-model="loginForm.username"/>
           </el-form-item>
           <el-form-item prop="password">
             <el-input
@@ -140,12 +195,12 @@ onMounted(() => {
               type="text"
               :placeholder="$t('login.security')"
               :suffix-icon="Open"
-              v-model="loginForm.securityCode"
+              v-model="loginForm.code"
               @keydown.enter="handlePassLogin"
             ></el-input>
           </el-form-item>
           <el-form-item>
-            <el-image class="w-100px h-30px" :src="loginForm.captchaPicture" @click="handleCaptcha"/>
+            <el-image class="w-100px h-30px" :src="loginForm.img" @click="handleCaptcha"/>
             <el-button text size="small" class="ml-6px" @click="handleCaptcha">
               <div class="text-gray-400 hover:text-#8B5CF6 select-none">{{ $t("login.blur") }}</div>
             </el-button>

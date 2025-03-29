@@ -3,7 +3,7 @@ import sky from "@/utils/axios";
 
 // 统一管理接口
 enum API {
-  PASSWORD_LOGIN = "/sky/auths/login",
+  PASSWORD_LOGIN = "/v1/auth/password-login",
   LOGOUT = "/sky/auths/logout",
   USERINFO = "/sky/auths/userinfo",
 }

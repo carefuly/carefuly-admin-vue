@@ -69,6 +69,9 @@ class Sky {
           router.replace(LOGIN_URL);
           return Promise.reject(response.data);
         } else if ([400, 403, 500].includes(response.data.code)) {
+          if (typeof response.data.msg === "object") {
+            response.data.msg = JSON.stringify(response.data.msg);
+          }
           skyMsgError(response.data.msg || "服务器偷偷跑到火星去玩了🌻");
           return Promise.reject(response.data.msg || "服务器偷偷跑到火星去玩了🌻");
         } else if (response.data) {
