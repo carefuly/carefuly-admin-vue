@@ -42,20 +42,20 @@ export const layoutRouter: RouteRecordRaw[] = [
  * LayoutRouter (布局路由)
  */
 export const staticRouter: RouteRecordRaw[] = [
-  // /** 首页 */
-  // {
-  //   path: "/dashboard/analysis", // [唯一]
-  //   component: () => import("@/views/dashboard/analysis/index.vue"),
-  //   meta: {
-  //     title: "分析页", // 标题
-  //     icon: "HomeFilled", // 图标 HomeFilled
-  //     isHide: false, // 代表路由在菜单中是否隐藏，是否隐藏[false不隐藏, ture隐藏]
-  //     isLink: "", // 是否外链[false否, true是]
-  //     isKeepAlive: true, // 是否缓存路由数据[false否, true是]
-  //     isFull: false, // 是否缓存全屏[false否, true是]
-  //     isAffix: true, // 是否缓存固定路由[false否, true是]
-  //   }
-  // },
+  /** 首页 */
+  {
+    path: "/dashboard/analysis", // [唯一]
+    component: () => import("@/views/careful-ui/dashboard/analysis/index.vue"),
+    meta: {
+      title: "分析页", // 标题
+      icon: "HomeFilled", // 图标 HomeFilled
+      isHide: false, // 代表路由在菜单中是否隐藏，是否隐藏[false不隐藏, ture隐藏]
+      isLink: "", // 是否外链[false否, true是]
+      isKeepAlive: true, // 是否缓存路由数据[false否, true是]
+      isFull: false, // 是否缓存全屏[false否, true是]
+      isAffix: true, // 是否缓存固定路由[false否, true是]
+    }
+  },
 ];
 
 /**
