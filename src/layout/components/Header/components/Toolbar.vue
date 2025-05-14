@@ -1,0 +1,39 @@
+<script setup>
+import SearchMenu from "./SearchMenu.vue";
+import Dimension from "./Dimension.vue";
+import Refresh from "./Refresh.vue";
+import Dark from "./Dark.vue";
+import Language from "./Language.vue";
+import FullScreen from "./FullScreen.vue";
+import ThemeSetting from "./ThemeSetting.vue";
+import User from "./User.vue";
+</script>
+
+<template>
+  <div class="header-right">
+    <!-- 搜索菜单 -->
+    <SearchMenu class="<md:visible"></SearchMenu>
+    <!-- ElementPlus 尺寸配置 -->
+    <Dimension class="<md:visible"></Dimension>
+    <!-- 路由缓存刷新 -->
+    <Refresh class="<md:visible"></Refresh>
+    <!-- 明亮/暗黑模式图标 -->
+    <Dark></Dark>
+    <!-- 中英文翻译 -->
+    <Language class="<md:visible"></Language>
+    <!-- 全屏图标 -->
+    <FullScreen></FullScreen>
+    <!-- 主题配置 -->
+    <ThemeSetting class="<md:visible"></ThemeSetting>
+    <!-- 头像 AND 下拉折叠 -->
+    <User></User>
+  </div>
+</template>
+
+<style scoped lang="scss">
+.header-right {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+</style>
