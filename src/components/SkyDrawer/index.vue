@@ -8,7 +8,7 @@ const props = defineProps({
   size: {default: "400"},
   closeOnClickModel: {default: true},
   destroyOnClose: {default: false},
-  confirmText: {default: "确定"},
+  confirmText: {default: "保存"},
   cancelText: {default: "取消"},
   direction: {default: "rtl"},
   loading: {default: false},

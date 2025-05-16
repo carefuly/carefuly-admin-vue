@@ -7,6 +7,9 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    CfInput: typeof import('./../form/CfInput/index.vue')['default']
+    CfSelect: typeof import('./../form/CfSelect/index.vue')['default']
+    CfSelectTree: typeof import('./../form/CfSelectTree/index.vue')['default']
     File: typeof import('./../components/SkyUpload/file.vue')['default']
     Image: typeof import('./../components/SkyUpload/image.vue')['default']
     MobileDrawer: typeof import('./../components/MobileDrawer/index.vue')['default']
